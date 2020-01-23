@@ -1,0 +1,62 @@
+<%- include('../includes/start.ejs') %>
+    <link rel="stylesheet" href="/css/cart.css">
+    <script src="/js/test.js"></script>
+    </head>
+
+    <body>
+        <%- include('../includes/nav.ejs') %>
+            <main>
+                <% if(products.length > 0){%>
+                    <ul class="cart__item-list">
+                        <% products.forEach( prod => { %>
+                            <li class="cart__item">
+                                <h1>
+                                    <%=prod.product.title%>
+                                </h1>
+                                <h2>Qty:
+                                    <%=prod.quantity%>
+                                </h2>
+                                <h2>unit Price:
+                                    <%=prod.product.price%>
+                                </h2>
+                                <form action="/cart-delete-item" method="POST">
+                                    <input type="hidden" name="id" value="<%=prod.product._id%>">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" >
+                                    <button class="btn danger" type="submit">Delete</button>
+                                </form>
+                                
+                            </li>
+                            <% }); %>
+                    </ul>
+                    <hr>
+                    <div class="centered">
+                        <form action="/create-order" method="POST">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" >
+                            <button type="submit" class="btn">Order Now!!!</button>
+                        </form>
+                    </div>
+                    <div>
+                    <button id="payment-button" class="btn">Pay</button>
+                    </div>
+                    <script>
+                        var config = {
+                            // replace the payment_api_token with yours
+                            payment_api_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkZmM3YmU4ZGFhNDUyNGYxYjRmMjZmOSIsImVtYWlsIjoienl6QGdtYWlsLmNvbSIsImlhdCI6MTU3NjgyNzg4MH0.BGT8N4sLTHSzgxgAcH2eeEa_7BgBmhrrvjQl8eGwTU0",
+                            product_identity: "1234567890",
+                            product_name: "Dragon",
+                            amount: 1000
+                        };
+
+                        var checkout = new customCheckout(config);
+                        var btn = document.getElementById("payment-button");
+                        btn.onclick = function() {
+                            checkout.show();
+                        }
+                </script>
+
+                    <% } else { %>
+                        <h1>No products in Cart</h1>
+                        <% } %>
+
+            </main>
+            <%- include('../includes/end.ejs') %>
