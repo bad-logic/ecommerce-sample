@@ -1,6 +1,7 @@
 const Product = require('../models/product.model');
 const Order = require('../models/order.model');
-
+// check documentation of pdfkit for more info
+const PDFDocument = require('pdfkit'); // written in coffeeScript
 const fs = require('fs');
 const path = require('path');
 
@@ -215,8 +216,7 @@ exports.getInvoice = (req, res, next) => {
         const invoiceName = 'invoice-' + orderId + '.pdf';
         const invoicePath = path.join('data', 'invoices', invoiceName);
 
-        // reading file suitable for small files only
-
+        // READING THE FILE, SUITABLE FOR SMALL FILES ONLY
         // fs.readFile(invoicePath, "utf8", (err, data) => {
         //     if (err) {
         //         return next(err);
@@ -228,11 +228,42 @@ exports.getInvoice = (req, res, next) => {
         //     res.send(data)
         // });
 
-        // for bigger files stream the data
-        const file = fs.createReadStream(invoicePath);
+        // FOR BIGGER FILES YOU NEED TO STREAM THE DATA
+        // const file = fs.createReadStream(invoicePath);
+        // res.setHeader('Content-Type', 'application/pdf');
+        // res.setHeader('content-Disposition', 'inline; filename="' + invoiceName + '"');
+        // file.pipe(res); // forward the data read in stream to the response. response is a writable stream
+
+        // CREATING THE INVOICE/ PDF GENEREATION USING PDFKIT AND SENDING TO CLIENT + WRITING TO THE SERVER AT ONCE
+        const pdf = new PDFDocument(); // is a readable stream
+
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('content-Disposition', 'inline; filename="' + invoiceName + '"');
-        file.pipe(res); // forward the data read in stream to the response. response is a writable stream
+
+        pdf.pipe(fs.createWriteStream(invoicePath)) // creating write stream and writing in the server side in invoicePath
+        pdf.pipe(res) // forward the data read from readable stream 'pdf' to the response. response is a writable stream
+
+        pdf.fontSize(26).text('Invoice:', {
+            underline: true
+        });
+        pdf.fontSize(14).text(`id: # ${order._id}`);
+        pdf.fontSize(16);
+        pdf.text('------------------------------------------------------------------------------------');
+        pdf.text('Particulars' + '              ' + 'Unit Price($)' + '             ' + 'Qty' + '             ' + 'Total($)');
+        pdf.text('------------------------------------------------------------------------------------');
+        let totalPrice = 0;
+        order.items.forEach(item => {
+            const itemPrice = item.product.price * item.quantity;
+            totalPrice += itemPrice;
+            pdf.text(item.product.title + '                 ' + item.product.price + '                     ' + item.quantity + '            ' + itemPrice);
+            pdf.text('------------------------------------------------------------------------------------');
+        });
+        pdf.text('------------------------------------------------------------------------------------');
+        pdf.text(`Grand Total : $ ${totalPrice}`);
+        pdf.text('------------------------------------------------------------------------------------');
+        pdf.end(); // writable stream to write file in server and send response will be closed
+
+
     }).catch(err => {
         next(err);
     });
