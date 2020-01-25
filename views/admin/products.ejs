@@ -6,6 +6,7 @@
         <%- include('../includes/nav.ejs') %>
 
             <main>
+            
                 <% if (products.length > 0) { %>
                     <div class="grid">
                         <% for (let product of products) { %>
@@ -37,8 +38,16 @@
                             </article>
                             <% } %>
                     </div>
+                        <%- include('../includes/pagination.ejs',{
+                            hasPreviousPage: hasPreviousPage,
+                            hasNextPage: hasNextPage,
+                            previousPage: previousPage,
+                            currentPage: currentPage,
+                            nextPage: nextPage,
+                            lastPage: lastPage
+                            }) %>         
                     <% } else { %>
-                        <h1>No Products Found!</h1>
+                        <h1>You have not added any products</h1>
                         <% } %>
             </main>
             <%- include('../includes/end.ejs') %>
