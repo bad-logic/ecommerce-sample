@@ -113,7 +113,20 @@ userSchema.methods.addOrder = function() {
     return this.populate('cart.items.product')
         .execPopulate()
         .then(user => {
-            const orderItems = user.cart.items.map(item => {
+            // In case products are deleted when added to cart but before orders
+            // then below product: {...item.product._doc } returns error since 
+            // we try to get _doc of null
+            //  so before that filter out the products
+
+            const cartItems = user.cart.items.filter(item => {
+                if (item.product) {
+                    return item;
+                }
+            });
+            // console.log("cart Items to order before filtering>>", user.cart.items);
+
+            // console.log("cart Items to order after filtering>>", cartItems);
+            const orderItems = cartItems.map(item => {
                 return {
                     product: {...item.product._doc },
                     quantity: item.quantity

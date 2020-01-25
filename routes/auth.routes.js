@@ -25,9 +25,7 @@ Router.post('/signup',
                     return Promise.reject('email already exists. Pick a different one');
                 };
             })
-    })
-    .normalizeEmail() //sanitizing the email
-    .trim(),
+    }),
     body('password', 'please enter password of minimum length 8') //checks password in body of the req object
     .isLength({ min: 8 })
     .trim(), // saintization removing extra white spaces
@@ -55,9 +53,7 @@ Router.post('/login', [
                         return Promise.reject('Invalid email or password');
                     };
                 })
-        })
-        .normalizeEmail()
-        .trim(),
+        }),
         body('password', 'Invalid email or password') //checks password in body of the req object
         .isLength({ min: 8 })
         .trim()
@@ -81,8 +77,6 @@ Router.post('/reset', [
                     };
                 })
         })
-        .normalizeEmail()
-        .trim()
     ],
     authcontroller.getResetLink);
 
