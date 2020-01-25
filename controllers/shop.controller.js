@@ -22,7 +22,6 @@ exports.getIndex = (req, res, next) => {
             error.httpStatusCode = 500;
             return next(error);
         });
-
 }
 
 
@@ -215,16 +214,25 @@ exports.getInvoice = (req, res, next) => {
         }
         const invoiceName = 'invoice-' + orderId + '.pdf';
         const invoicePath = path.join('data', 'invoices', invoiceName);
-        fs.readFile(invoicePath, "utf8", (err, data) => {
-            if (err) {
-                return next(err);
-            }
-            console.log("data>>", data);
-            res.setHeader('Content-Type', 'application/pdf'); // providing info to the browser to handle the file
-            res.setHeader('content-Disposition', 'inline; filename="' + invoiceName + '"'); // defines how the content should be served to the client
-            // res.setHeader('content-Disposition', 'attachment; filename="' + invoiceName + '"'); // defines how the content should be served to the client
-            res.send(data)
-        });
+
+        // reading file suitable for small files only
+
+        // fs.readFile(invoicePath, "utf8", (err, data) => {
+        //     if (err) {
+        //         return next(err);
+        //     }
+        //     console.log("data>>", data);
+        //     res.setHeader('Content-Type', 'application/pdf'); // providing info to the browser to handle the file
+        //     res.setHeader('content-Disposition', 'inline; filename="' + invoiceName + '"'); // defines how the content should be served to the client
+        //     // res.setHeader('content-Disposition', 'attachment; filename="' + invoiceName + '"'); // defines how the content should be served to the client
+        //     res.send(data)
+        // });
+
+        // for bigger files stream the data
+        const file = fs.createReadStream(invoicePath);
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('content-Disposition', 'inline; filename="' + invoiceName + '"');
+        file.pipe(res); // forward the data read in stream to the response. response is a writable stream
     }).catch(err => {
         next(err);
     });
