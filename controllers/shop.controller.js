@@ -1,19 +1,40 @@
 const Product = require('../models/product.model');
 const Order = require('../models/order.model');
+
 // check documentation of pdfkit for more info
 const PDFDocument = require('pdfkit'); // written in coffeeScript
 const fs = require('fs');
 const path = require('path');
 
+const ITEMS_PER_PAGE = 3;
+
 exports.getIndex = (req, res, next) => {
 
+    let totalProds;
+    let lastPage;
+    const page = parseInt(req.query.page, 10) || 1; //undefined in case page is not provided eg: when index page is loaded
     Product.find()
+        .countDocuments()
+        .then(count => {
+            totalProds = count;
+            lastPage = Math.ceil(totalProds / ITEMS_PER_PAGE);
+            return Product.find()
+                .skip((page - 1) * ITEMS_PER_PAGE) // NaN in case page = undefined in such case it will not skip any data
+                .limit(ITEMS_PER_PAGE)
+        })
         .then((data) => {
             // console.log("data>>", data);
             res.render("shop/index", {
                 pageTitle: 'My First Shop',
                 path: 'index',
-                products: data
+                products: data,
+                hasPreviousPage: page > 1,
+                hasNextPage: page < lastPage,
+                //hasNextPage: totalProds > (page * ITEMS_PER_PAGE);
+                previousPage: page - 1,
+                currentPage: page,
+                nextPage: page + 1,
+                lastPage: lastPage
                     // isAuthenticated: req.session.isLoggedIn,
                     // csrfToken: req.csrfToken()
             });
@@ -28,13 +49,31 @@ exports.getIndex = (req, res, next) => {
 
 exports.getProducts = (req, res, next) => {
 
+    let totalProds;
+    let lastPage;
+    const page = parseInt(req.query.page, 10) || 1; //undefined in case page is not provided eg: when index page is loaded
+
     Product.find()
+        .countDocuments()
+        .then(count => {
+            totalProds = count;
+            lastPage = Math.ceil(totalProds / ITEMS_PER_PAGE);
+            return Product.find()
+                .skip((page - 1) * ITEMS_PER_PAGE) // NaN in case page = undefined in such case it will not skip any data
+                .limit(ITEMS_PER_PAGE)
+        })
         .then(data => {
             // console.log("data>>>", data);
             res.render("shop/product-list", {
                 pageTitle: 'All products',
                 path: 'product-list',
-                products: data
+                products: data,
+                hasPreviousPage: page > 1,
+                hasNextPage: page < lastPage,
+                previousPage: page - 1,
+                currentPage: page,
+                nextPage: page + 1,
+                lastPage: lastPage
             });
         })
         .catch(err => {

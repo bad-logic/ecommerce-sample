@@ -6,12 +6,12 @@
         <%- include('../includes/nav.ejs') %>
             <main>
                 <% if(orders.length <= 0){%>
-                    <h1>Nothing there!</h1>
+                    <h1>No orders. click order now in the cart</h1>
                     <% } else { %>
                         <ul class="orders">
                             <% orders.forEach(order => { %>
                                 <li class="orders__item">
-                                    <h1> Order - # <%=order._id%></h1><a href="/orders/<%=order._id%>">Invoice</a>
+                                    <h1> Order - # <%=order._id%> - <a href="/orders/<%=order._id%>">Invoice</a></h1>
                                     <ul class="orders__products">
                                         <% order.items.forEach(item => { %>
                                             <li class="orders__products-item">

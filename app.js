@@ -124,7 +124,7 @@ app.use(shopRoutes);
 app.use(authRoutes);
 
 
-app.get('/500', errorController.get500);
+// app.get('/500', errorController.get500);
 // handling the undefined endpoints
 app.use(errorController.get404);
 
@@ -132,7 +132,6 @@ app.use(errorController.get404);
 // FOR SYNCHRONOUS CODES THROWING ERRORS IS DETECTED BY EXPRESS AND THIS BELOW MIDLLEWARE GETS FIRED
 // BUT FOR ASYNCHRONOUS CODES WE NEED TO EXPLICITLY CALL next(err) WITH ERROR TO FIRE THIS MIDDLEWARE
 app.use((err, req, res, next) => {
-    // res.redirect('/500');
     console.log("error>>", err);
     res.status(500).render('500', {
         pageTitle: 'Server Error',

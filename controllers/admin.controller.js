@@ -1,6 +1,7 @@
 const Product = require('./../models/product.model');
 const { validationResult } = require('express-validator');
 const { deleteFile } = require('./../util/file');
+const ITEMS_PER_PAGE = 3;
 
 exports.getAddProduct = (req, res, next) => {
     res.render('admin/edit-product', {
@@ -88,13 +89,31 @@ exports.postAddProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-    Product.find({ userId: req.user._id }).populate('userId')
+    let totalProds;
+    let lastPage;
+    const page = parseInt(req.query.page, 10) || 1; //undefined in case page is not provided eg: when index page is loaded
+    Product.find({ userId: req.user._id })
+        .countDocuments()
+        .then(count => {
+            totalProds = count;
+            lastPage = Math.ceil(totalProds / ITEMS_PER_PAGE);
+            return Product.find({ userId: req.user._id })
+                .skip((page - 1) * ITEMS_PER_PAGE) // NaN in case page = undefined in such case it will not skip any data
+                .limit(ITEMS_PER_PAGE)
+                .populate('userId');
+        })
         .then(data => {
-            // console.log("data>>>", data);
+            console.log("data>>>", data);
             res.render('admin/products', {
                 products: data,
                 path: 'admin-product',
                 pageTitle: 'Admin Products',
+                hasPreviousPage: page > 1,
+                hasNextPage: page < lastPage,
+                previousPage: page - 1,
+                currentPage: page,
+                nextPage: page + 1,
+                lastPage: lastPage
             });
         }).catch(err => {
             const error = new Error(err);
@@ -208,11 +227,11 @@ exports.postUpdateProduct = (req, res, next) => {
 exports.postDeleteProduct = (req, res, next) => {
 
     const id = req.body.id;
-    Product.findById(id).then(Product => {
+    Product.findById(id).then(product => {
             if (!product) {
                 return next(new Error('Product not found'));
             }
-            deleteFile(Product.imageUrl.slice(1));
+            deleteFile(product.imageUrl.slice(1));
             return Product.deleteOne({ _id: id, userId: req.user._id })
         })
         .then(response => {

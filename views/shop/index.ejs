@@ -1,14 +1,11 @@
 <%- include('../includes/start.ejs') %>
     <link rel="stylesheet" href="/css/product.css">
-        <!-- <script src="./js/khalti.js"></script>-->
 
     </head>
 
     <body>
         <%- include('../includes/nav.ejs') %>
             <main>
-
-    <!---<button id="payment-button">Pay with Khalti</button>-->
                 <% if(products.length>0) { %>
                     <div class="grid">
                         <% for(let product of products) {%>
@@ -37,6 +34,14 @@
                             </article>
                             <%}%>
                     </div>
+                        <%- include('../includes/pagination.ejs',{
+                            hasPreviousPage: hasPreviousPage,
+                            hasNextPage: hasNextPage,
+                            previousPage: previousPage,
+                            currentPage: currentPage,
+                            nextPage: nextPage,
+                            lastPage: lastPage
+                            }) %>
                     <% } else { %>
                         <h1> No Products are added</h1>
                         <% } %>
