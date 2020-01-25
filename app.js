@@ -8,7 +8,7 @@ const User = require('./models/user.model');
 const session = require('express-session');
 const mongoSessionStore = require('connect-mongodb-session')(session);
 const errorController = require('./controllers/error.controller');
-
+const multer = require('multer');
 
 // to send data while redirecting to another page 
 const flash = require('connect-flash');
@@ -35,11 +35,35 @@ const csrfProtection = csrf();
 // console the request routes
 app.use(morgan('dev'));
 
-// for parsing the req.body object 
-app.use(bodyParser.urlencoded({ extended: false }));
+// setup for storing the file
+const fileStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'images');
+    },
+    filename: (req, file, cb) => {
+        cb(null, new Date().toISOString() + '-' + file.originalname);
+    }
+});
 
+const fileFilter = (req, file, cb) => {
+    if (
+        file.mimetype === 'image/png' ||
+        file.mimetype === 'image/jpeg' ||
+        file.mimetype === 'image/jpg'
+    ) {
+        cb(null, true);
+    } else {
+        cb(null, false);
+    }
+};
+
+// for parsing the req.body object only texts
+app.use(bodyParser.urlencoded({ extended: false }));
+// for parsing the req.body for multipart file types
+app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image'));
 // for giving access to the public files that are sent to the browsers (eg: css,js)
 app.use(express.static(path.join(__dirname, 'public')));
+app.use("/images", express.static(path.join(__dirname, 'images')));
 
 // for maintaining the session of logged in users
 app.use(
@@ -109,6 +133,7 @@ app.use(errorController.get404);
 // BUT FOR ASYNCHRONOUS CODES WE NEED TO EXPLICITLY CALL next(err) WITH ERROR TO FIRE THIS MIDDLEWARE
 app.use((err, req, res, next) => {
     // res.redirect('/500');
+    console.log("error>>", err);
     res.status(500).render('500', {
         pageTitle: 'Server Error',
         path: '500',

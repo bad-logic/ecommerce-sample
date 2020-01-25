@@ -21,6 +21,7 @@ exports.postAddProduct = (req, res, next) => {
     errors.array().forEach(err => {
         errorMessage = errorMessage + err.msg;
     });
+
     // validation 
     if (!errors.isEmpty()) {
         return res.status(422).render('admin/edit-product', {
@@ -33,8 +34,26 @@ exports.postAddProduct = (req, res, next) => {
             product: {
                 title: req.body.title,
                 price: req.body.price,
-                description: req.body.description,
-                imageUrl: req.body.imageUrl
+                description: req.body.description
+            }
+        });
+    }
+
+    const image = req.file;
+    console.log("image", image);
+    // checking if image is valid/supported file types
+    if (!image) {
+        return res.status(422).render('admin/edit-product', {
+            pageTitle: 'Add Product',
+            path: 'add-product',
+            editing: false,
+            hasError: true,
+            errorMessage: 'Attached fileType is not supported.',
+            validationErrors: [],
+            product: {
+                title: req.body.title,
+                price: req.body.price,
+                description: req.body.description
             }
         });
     }
@@ -42,8 +61,8 @@ exports.postAddProduct = (req, res, next) => {
     let product = new Product({});
     product.title = req.body.title;
     product.price = req.body.price;
+    product.imageUrl = '/' + image.path;
     product.description = req.body.description;
-    product.imageUrl = req.body.imageUrl;
     product.userId = req.user;
     // console.log("product to add>>>", product);
     product.save()
@@ -125,12 +144,14 @@ exports.postUpdateProduct = (req, res, next) => {
                 _id: req.body.id,
                 title: req.body.title,
                 price: req.body.price,
-                description: req.body.description,
-                imageUrl: req.body.imageUrl,
-
+                description: req.body.description
             }
         });
     }
+
+    // checking if the image is sent in the request
+    // undefined if no image is uploaded
+    const image = req.file;
 
     Product.findById(req.body.id)
         .then(product => {
@@ -141,7 +162,9 @@ exports.postUpdateProduct = (req, res, next) => {
             product.title = req.body.title;
             product.price = req.body.price;
             product.description = req.body.description;
-            product.imageUrl = req.body.imageUrl;
+            if (image) {
+                product.imageUrl = '/' + image.path;
+            }
             // console.log("product to update>>>", product);
             return product.save()
                 .then(result => {
