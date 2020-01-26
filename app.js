@@ -57,8 +57,9 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-// for parsing the req.body object only texts
-app.use(bodyParser.urlencoded({ extended: false }));
+// for parsing the data submitted through forms.
+app.use(bodyParser.urlencoded({ extended: false })); // useful for parsing x-www-form-urlencoded.
+
 // for parsing the req.body for multipart file types
 app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image'));
 // for giving access to the public files that are sent to the browsers (eg: css,js)

@@ -1,3 +1,6 @@
 /node_modules
 payment_services.js
-/images
+# /images
+# /data
+sign.html
+error-playground.js
