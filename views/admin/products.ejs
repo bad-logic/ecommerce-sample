@@ -29,11 +29,16 @@
                                 </div>
                                 <div class="card__actions">
                                     <a href="/admin/edit-product/<%=product._id%>?edit=true" class="btn">Edit</a>
-                                    <form action="/admin/delete-product" method="POST">
+                                    <!--<form action="/admin/delete-product" method="POST">
                                         <input type="hidden" name="id" value="<%=product._id%>">
                                         <input type="hidden" name="_csrf" value="<%= csrfToken %>" >
                                         <button class="btn " type="submit ">Delete</button>
-                                    </form>
+                                    </form>-->
+
+                                    <!-- Asynchronously deleted the product and removing it from DOM  -->
+                                    <input type="hidden" name="id" value="<%=product._id%>">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" >
+                                    <button class="btn " type="button" onclick="deleteProduct(this)">Delete</button>
                                 </div>
                             </article>
                             <% } %>
@@ -47,7 +52,8 @@
                             lastPage: lastPage
                             }) %>         
                     <% } else { %>
-                        <h1>You have not added any products</h1>
+                        <h1>You have no products</h1>
                         <% } %>
             </main>
+            <script src="/js/admin.js"></script>
             <%- include('../includes/end.ejs') %>

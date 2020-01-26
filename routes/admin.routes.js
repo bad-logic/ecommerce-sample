@@ -23,7 +23,10 @@ router.post('/edit-product', [
 
 router.get('/edit-product/:id', adminController.getEditProduct);
 
-router.post('/delete-product', adminController.postDeleteProduct);
+
+// router.post('/delete-product', adminController.postDeleteProduct);
+// if request is made through js then we have access to other http verbs
+router.delete('/product/:id', adminController.deleteProduct);
 
 
 module.exports = router;
