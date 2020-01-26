@@ -198,6 +198,34 @@ exports.postDeleteFromCart = (req, res, next) => {
 }
 
 
+exports.getCheckout = (req, res, next) => {
+
+    req.user // req.user is a user model object can call the populate method
+        .populate('cart.items.product') //does not return promise
+        .execPopulate()
+        .then(user => {
+            let totalAmount = 0;
+            const cartItems = user.cart.items.filter(item => {
+                if (item.product) {
+                    totalAmount += item.product.price * item.quantity;
+                    return item;
+                }
+            });
+            res.render('shop/checkout', {
+                pageTitle: 'Checkout',
+                path: 'checkout',
+                products: cartItems,
+                totalSum: totalAmount
+            });
+        })
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
+        });
+}
+
+
 exports.PostOrder = (req, res, next) => {
     if (!req.user.cart.items.length) {
         // console.log("cart>>", req.user.cart.items);
@@ -232,16 +260,6 @@ exports.getOrders = (req, res, next) => {
         });
 
 }
-
-exports.getCheckout = (req, res, next) => {
-
-    res.render('shop/checkout', {
-        pageTitle: 'Checkout',
-        path: 'checkout'
-    });
-
-}
-
 
 exports.getInvoice = (req, res, next) => {
     const orderId = req.params.orderId;
