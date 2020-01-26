@@ -4,7 +4,7 @@ const express = require('express');
 const router = express.Router();
 
 
-//  ROUTES
+//  ROUTES FOR SHOP
 
 router.get('/', shopController.getIndex);
 

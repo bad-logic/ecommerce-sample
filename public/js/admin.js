@@ -1,4 +1,5 @@
 const deleteProduct = (btn) => {
+
     // this is passed, which represents the context button
     const id = btn.parentNode.querySelector('[name=id]').value;
     const _csrf = btn.parentNode.querySelector('[name=_csrf]').value;
@@ -24,4 +25,5 @@ const deleteProduct = (btn) => {
         .catch(err => {
             console.log('err>>', err);
         });
+
 }

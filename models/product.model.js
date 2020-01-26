@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const productSchema = new Schema({
+
     title: {
         type: String,
         required: true
@@ -25,12 +26,15 @@ const productSchema = new Schema({
         ref: 'user',
         required: true
     }
+
 }, {
     timestamps: true
 });
 
 const ProductModel = mongoose.model('product', productSchema);
 module.exports = ProductModel;
+
+
 
 
 

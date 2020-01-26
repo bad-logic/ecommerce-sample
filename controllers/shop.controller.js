@@ -23,20 +23,16 @@ exports.getIndex = (req, res, next) => {
                 .limit(ITEMS_PER_PAGE)
         })
         .then((data) => {
-            // console.log("data>>", data);
             res.render("shop/index", {
                 pageTitle: 'My First Shop',
                 path: 'index',
                 products: data,
                 hasPreviousPage: page > 1,
                 hasNextPage: page < lastPage,
-                //hasNextPage: totalProds > (page * ITEMS_PER_PAGE);
                 previousPage: page - 1,
                 currentPage: page,
                 nextPage: page + 1,
                 lastPage: lastPage
-                    // isAuthenticated: req.session.isLoggedIn,
-                    // csrfToken: req.csrfToken()
             });
         })
         .catch(err => {
@@ -44,6 +40,7 @@ exports.getIndex = (req, res, next) => {
             error.httpStatusCode = 500;
             return next(error);
         });
+
 }
 
 
@@ -63,7 +60,6 @@ exports.getProducts = (req, res, next) => {
                 .limit(ITEMS_PER_PAGE)
         })
         .then(data => {
-            // console.log("data>>>", data);
             res.render("shop/product-list", {
                 pageTitle: 'All products',
                 path: 'product-list',
@@ -89,7 +85,6 @@ exports.getProductDetails = (req, res, next) => {
     const prod_id = req.params.id;
     Product.findById(prod_id)
         .then(data => {
-            // console.log("data>>>", data)
             res.render("shop/product-detail", {
                 pageTitle: data.title,
                 path: 'product-list',
@@ -108,12 +103,8 @@ exports.addToCart = (req, res, next) => {
 
     const prod_id = req.body.productId;
 
-    // console.log("product id>>>", prod_id);
-
     Product.findById(prod_id)
         .then(product => {
-            // console.log("product to add to cart>>>", product);
-            // console.log("user>>", req.user);
             return req.user.addToCart(product);
         })
         .then(response => {
@@ -133,8 +124,6 @@ exports.getCart = (req, res, next) => {
         .populate('cart.items.product') //does not return promise
         .execPopulate()
         .then(user => {
-
-
             // just in case product is deleted and user.cart.items returns output as below when populted from 
             // products collections since no product with such id exists:
 
@@ -159,14 +148,12 @@ exports.getCart = (req, res, next) => {
             // solution is to filter out the products before passing them to frontends
 
 
-            // console.log("cartItems without filtering>>", user.cart.items);
 
             const cartItems = user.cart.items.filter(item => {
                 if (item.product) {
                     return item;
                 }
             });
-            // console.log("cart items after filtering>>", cartItems);
 
             res.render('shop/cart', {
                 pageTitle: 'Your Cart',
@@ -223,12 +210,13 @@ exports.getCheckout = (req, res, next) => {
             error.httpStatusCode = 500;
             return next(error);
         });
+
 }
 
 
 exports.PostOrder = (req, res, next) => {
+
     if (!req.user.cart.items.length) {
-        // console.log("cart>>", req.user.cart.items);
         return res.redirect('/cart');
     }
     req.user.addOrder()
@@ -240,13 +228,13 @@ exports.PostOrder = (req, res, next) => {
             error.httpStatusCode = 500;
             return next(error);
         });
+
 }
 
 exports.getOrders = (req, res, next) => {
 
     req.user.getOrder()
         .then(orders => {
-            // console.log("orders>>", orders);
             res.render('shop/orders', {
                 pageTitle: 'Your Orders',
                 path: 'orders',
@@ -262,6 +250,7 @@ exports.getOrders = (req, res, next) => {
 }
 
 exports.getInvoice = (req, res, next) => {
+
     const orderId = req.params.orderId;
     Order.findById(orderId).then(order => {
         if (!order) {
@@ -278,7 +267,6 @@ exports.getInvoice = (req, res, next) => {
         //     if (err) {
         //         return next(err);
         //     }
-        //     console.log("data>>", data);
         //     res.setHeader('Content-Type', 'application/pdf'); // providing info to the browser to handle the file
         //     res.setHeader('content-Disposition', 'inline; filename="' + invoiceName + '"'); // defines how the content should be served to the client
         //     // res.setHeader('content-Disposition', 'attachment; filename="' + invoiceName + '"'); // defines how the content should be served to the client
@@ -324,4 +312,5 @@ exports.getInvoice = (req, res, next) => {
     }).catch(err => {
         next(err);
     });
+
 }
