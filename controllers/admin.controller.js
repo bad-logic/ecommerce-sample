@@ -4,6 +4,7 @@ const { deleteFile } = require('./../util/file');
 const ITEMS_PER_PAGE = 3;
 
 exports.getAddProduct = (req, res, next) => {
+
     res.render('admin/edit-product', {
         pageTitle: 'Add Product',
         path: 'add-product',
@@ -24,8 +25,6 @@ exports.postAddProduct = (req, res, next) => {
         errorMessage = errorMessage + ' ' + err.msg;
     });
     const image = req.file;
-    console.log("image", image);
-
     // validation 
     if (!errors.isEmpty()) {
         if (image) {
@@ -35,7 +34,6 @@ exports.postAddProduct = (req, res, next) => {
             // the image gets saved in the server even though we may have errors
             // in other input fields
             // so we delete such files
-            // console.log("error in validation but image is saved");
             deleteFile(image.path);
         }
         return res.status(422).render('admin/edit-product', {
@@ -75,10 +73,8 @@ exports.postAddProduct = (req, res, next) => {
     product.imageUrl = '/' + image.path;
     product.description = req.body.description;
     product.userId = req.user;
-    // console.log("product to add>>>", product);
     product.save()
         .then(data => {
-            // console.log("result>>", data);
             res.redirect('/admin/products');
         }).catch(err => {
             const error = new Error(err);
@@ -89,6 +85,7 @@ exports.postAddProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
+
     let totalProds;
     let lastPage;
     const page = parseInt(req.query.page, 10) || 1; //undefined in case page is not provided eg: when index page is loaded
@@ -103,7 +100,6 @@ exports.getProducts = (req, res, next) => {
                 .populate('userId');
         })
         .then(data => {
-            console.log("data>>>", data);
             res.render('admin/products', {
                 products: data,
                 path: 'admin-product',
@@ -120,10 +116,12 @@ exports.getProducts = (req, res, next) => {
             error.httpStatusCode = 500;
             return next(error);
         });
+
 };
 
 
 exports.getEditProduct = (req, res, next) => {
+
     const editMode = req.query.edit;
     if (!editMode) {
         return res.redirect('/');
@@ -134,7 +132,6 @@ exports.getEditProduct = (req, res, next) => {
             if (!data) {
                 return res.redirect("/");
             }
-            // console.log("data to edit>>", data);
             res.render('admin/edit-product', {
                 pageTitle: 'Edit Product',
                 path: 'edit-product',
@@ -173,7 +170,6 @@ exports.postUpdateProduct = (req, res, next) => {
             // the image gets saved in the server even though we may have errors
             // in other input fields
             // so we delete such files
-            // console.log("error in validation but image is saved");
             deleteFile(image.path);
         }
         return res.status(422).render('admin/edit-product', {
@@ -194,7 +190,6 @@ exports.postUpdateProduct = (req, res, next) => {
 
     Product.findById(req.body.id)
         .then(product => {
-            // console.log("product userId and req.user._id", product.userId, req.user._id);
             if (product.userId.toString() !== req.user._id.toString()) {
                 return res.redirect('/');
             }
@@ -209,7 +204,6 @@ exports.postUpdateProduct = (req, res, next) => {
                 // set the image path in database
                 product.imageUrl = '/' + image.path;
             }
-            // console.log("product to update>>>", product);
             return product.save()
                 .then(result => {
                     res.redirect("/admin/products");
@@ -222,27 +216,6 @@ exports.postUpdateProduct = (req, res, next) => {
         });
 
 };
-
-
-// exports.postDeleteProduct = (req, res, next) => {
-
-//     const id = req.body.id;
-//     Product.findById(id).then(product => {
-//             if (!product) {
-//                 return next(new Error('Product not found'));
-//             }
-//             deleteFile(product.imageUrl.slice(1));
-//             return Product.deleteOne({ _id: id, userId: req.user._id })
-//         })
-//         .then(response => {
-//             res.redirect("/admin/products");
-//         })
-//         .catch(err => {
-//             const error = new Error(err);
-//             error.httpStatusCode = 500;
-//             return next(error);
-//         });
-// };
 
 exports.deleteProduct = (req, res, next) => {
 
@@ -260,4 +233,5 @@ exports.deleteProduct = (req, res, next) => {
         .catch(err => {
             res.status(500).json({ msg: 'delete Failed' });
         });
+
 };

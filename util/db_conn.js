@@ -3,9 +3,11 @@
 const mongoose = require('mongoose');
 
 const connectToDb = () => mongoose.connect('mongodb://localhost:27017/nosql-ecommerce', {
+
     useUnifiedTopology: true,
     useNewUrlParser: true,
     useCreateIndex: true
+
 });
 
 exports.connectToDb = connectToDb;

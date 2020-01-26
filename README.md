@@ -1,1 +1,1 @@
-# ecommerce-sample=> MongoDb, Express, Node, EJS, Session
+# ecommerce-sample=> MongoDb, Express, Node, EJS, Session, Cookies, PDFkit

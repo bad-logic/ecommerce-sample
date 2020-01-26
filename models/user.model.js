@@ -5,6 +5,7 @@ const Order = require('./order.model');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new Schema({
+
     email: {
         type: String,
         required: true,
@@ -28,29 +29,31 @@ const userSchema = new Schema({
             }
         }]
     }
+
 }, {
     timestamps: true
 });
 
 userSchema.pre('save', function(next) {
+
     const user = this;
-    // console.log("user>>", user);
     if (user.isModified('password')) {
         bcrypt.hash(user.password, 12).then(hashedPassword => {
             user.password = hashedPassword;
-            // console.log("user>>", user);
             next();
         })
     } else {
         next();
     }
+
 });
 
 
 userSchema.statics.confirmCredentials = function(email, password) {
+
     let user = this;
     return new Promise((resolve, reject) => {
-        this.findOne({ email: email }).then(user => {
+        user.findOne({ email: email }).then(user => {
             if (!user) {
                 reject({ msg: 'no such email' });
             } else {
@@ -65,7 +68,6 @@ userSchema.statics.confirmCredentials = function(email, password) {
                     })
                     // comparision could not be done due to some error
                     .catch(err => {
-                        // console.log("error>>", err);
                         reject({
                             status: 500,
                             msg: 'Internal server error'
@@ -79,6 +81,7 @@ userSchema.statics.confirmCredentials = function(email, password) {
 
 
 userSchema.methods.addToCart = function(product) {
+
     let updatedCart;
     // copying items of the  users cart to new variable 
     updatedCart = {...this.cart };
@@ -87,7 +90,6 @@ userSchema.methods.addToCart = function(product) {
     const available = updatedCart.items.findIndex(prod => {
         return prod.product.toString() == product._id.toString();
     });
-    // console.log("available at index>>", available);
     // Product already exists increase quantity
     if (available >= 0) {
         updatedCart.items[available].quantity += 1;
@@ -97,19 +99,22 @@ userSchema.methods.addToCart = function(product) {
         updatedCart.items.push({ product: product._id, quantity: 1 });
     }
     this.cart = updatedCart;
-    // console.log("Cart>>", updatedCart);
     return this.save();
+
 }
 
 userSchema.methods.deleteCartItem = function(id) {
+
     const updatedCartItems = this.cart.items.filter(item => {
         return item.product.toString() !== id.toString();
     });
     this.cart.items = updatedCartItems;
     return this.save();
+
 }
 
 userSchema.methods.addOrder = function() {
+
     return this.populate('cart.items.product')
         .execPopulate()
         .then(user => {
@@ -123,16 +128,13 @@ userSchema.methods.addOrder = function() {
                     return item;
                 }
             });
-            // console.log("cart Items to order before filtering>>", user.cart.items);
 
-            // console.log("cart Items to order after filtering>>", cartItems);
             const orderItems = cartItems.map(item => {
                 return {
                     product: {...item.product._doc },
                     quantity: item.quantity
                 }
             });
-            // console.log("items to be ordered>>", orderItems);
             const order = new Order({
                 items: orderItems,
                 user: {
@@ -140,21 +142,25 @@ userSchema.methods.addOrder = function() {
                     userEmail: this.email
                 }
             });
-            // console.log("order created>>", order);
             return order.save();
         })
         .then(order => {
             return this.clearCart();
         })
+
 }
 
 userSchema.methods.clearCart = function() {
+
     this.cart.items = [];
     return this.save();
+
 }
 
 userSchema.methods.getOrder = function() {
+
     return Order.find({ 'user.userId': this._id });
+
 }
 
 const userModel = mongoose.model('user', userSchema);
@@ -199,7 +205,6 @@ module.exports = userModel;
 //             const available = updatedCart.items.findIndex(prod => {
 //                 return prod.productId.toString() == product._id.toString();
 //             });
-//             console.log("available at index>>", available);
 //             // Product already exists increase quantity
 //             if (available >= 0) {
 //                 updatedCart.items[available].quantity += 1;
@@ -209,7 +214,6 @@ module.exports = userModel;
 //                 updatedCart.items.push({ productId: new mongodb.ObjectID(product._id), quantity: 1 });
 //             }
 //         }
-//         console.log("Cart>>", updatedCart);
 //         return dbConn.collection('users').updateOne({ _id: this._id }, {
 //             $set: {
 //                 cart: updatedCart
@@ -220,7 +224,6 @@ module.exports = userModel;
 //     getCart() {
 //         const dbConn = getDb();
 //         const prodIds = this.cart.items.map(p => p.productId);
-//         console.log("product ids>>", prodIds);
 //         return dbConn.collection('products').find({ _id: { $in: prodIds } }).toArray().then(products => {
 //             return products.map(p => {
 //                 return {...p,
@@ -237,7 +240,6 @@ module.exports = userModel;
 //         const updatedCart = this.cart.items.filter(item => {
 //             return item.productId.toString() !== id.toString();
 //         });
-//         console.log("cart item deleted>>", updatedCart);
 //         return dbConn.collection('users').updateOne({ _id: this._id }, { $set: { cart: { items: updatedCart } } });
 
 //     }
