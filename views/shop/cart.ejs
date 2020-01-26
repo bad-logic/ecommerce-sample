@@ -1,6 +1,5 @@
 <%- include('../includes/start.ejs') %>
     <link rel="stylesheet" href="/css/cart.css">
-    <script src="/js/test.js"></script>
     </head>
 
     <body>
@@ -30,29 +29,8 @@
                     </ul>
                     <hr>
                     <div class="centered">
-                        <form action="/create-order" method="POST">
-                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" >
-                            <button type="submit" class="btn">Order Now!!!</button>
-                        </form>
-                    </div>
-                    <div>
-                    <button id="payment-button" class="btn">Pay</button>
-                    </div>
-                    <script>
-                        var config = {
-                            // replace the payment_api_token with yours
-                            payment_api_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkZmM3YmU4ZGFhNDUyNGYxYjRmMjZmOSIsImVtYWlsIjoienl6QGdtYWlsLmNvbSIsImlhdCI6MTU3NjgyNzg4MH0.BGT8N4sLTHSzgxgAcH2eeEa_7BgBmhrrvjQl8eGwTU0",
-                            product_identity: "1234567890",
-                            product_name: "Dragon",
-                            amount: 1000
-                        };
-
-                        var checkout = new customCheckout(config);
-                        var btn = document.getElementById("payment-button");
-                        btn.onclick = function() {
-                            checkout.show();
-                        }
-                </script>
+                        <a class="btn" href="/checkout">Checkout</a>
+                    </div>                    
 
                     <% } else { %>
                         <h1>No products in the Cart</h1>

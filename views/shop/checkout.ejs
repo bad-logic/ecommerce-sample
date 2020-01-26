@@ -1,6 +1,46 @@
 <%- include('../includes/start.ejs') %>
+    <link rel="stylesheet" href="/css/cart.css">
     </head>
 
     <body>
         <%- include('../includes/nav.ejs') %>
-            <%- include('../includes/end.ejs') %>
+        <main>
+        <ul class="cart__item-list">
+            <% products.forEach( prod => { %>
+                <li class="cart__item">
+                    <h1>
+                        <%=prod.product.title%>
+                    </h1>
+                    <h2>
+                        <%=prod.quantity%> x
+                    </h2>
+                    <h2>
+                        $<%=prod.product.price%>
+                    </h2>
+                </li>
+                <% }); %>
+        </ul>
+        <div class="centered">
+            <h2>Total : $ <%= totalSum%></h2>
+        </div>
+            <script>
+                var config = {
+                    // replace the payment_api_token with yours
+                    payment_api_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkZmM3YmU4ZGFhNDUyNGYxYjRmMjZmOSIsImVtYWlsIjoienl6QGdtYWlsLmNvbSIsImlhdCI6MTU3NjgyNzg4MH0.BGT8N4sLTHSzgxgAcH2eeEa_7BgBmhrrvjQl8eGwTU0",
+                    product_identity: "1234567890",
+                    product_name: "Dragon",
+                    amount: 1000
+                };
+            </script>
+            <div class="centered">
+                <button class="btn">Pay Now</button>
+            </div>
+             <!--<form action="/create-order" method="POST">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" >
+                            <button type="submit" class="btn">Order</button>
+                        </form>-->
+            TODO:after payment is successfull direct to the /create-order which will clean cart and create orders and direct to orders page.
+        </main>
+
+        <%- include('../includes/end.ejs') %>
+            
